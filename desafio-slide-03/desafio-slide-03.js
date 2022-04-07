@@ -25,8 +25,39 @@ function tratarEvento(event, index){
   let telefoneContato = document.getElementById('telefoneContato').value;
   let estadoContato = document.getElementById('estadoContato').value;
 
-  console.log(nomeContato, telefoneContato, estadoContato);
+  console.log("evento: ", event, ' dados: ', nomeContato, telefoneContato, estadoContato);
 
+  if('salvar' == event){
+    salvarContato(nomeContato, telefoneContato, estadoContato);
+  } else if('editar' == event){
+    // REALIZAR ACAO DE EDICAO
+  } else if('excluir' == event) {
+    // realizar acao de exclusao
+  } else if('visualizar' == event) {
+     let contatos = recuperarDados();
+     let contato = contatos[index];
+    
+     if(contato){
+      document.getElementById('nomeContato').value = contato.nome;
+      document.getElementById('telefoneContato').value = contato.telefone;
+      document.getElementById('estadoContato').value = contato.estado;
+     }
+
+  } else {
+    console.log(`Nenhuma ação válida foi selecionada`);
+  }  
+
+}
+
+function salvarContato(nome, telefone, estado){
+  // chave : valor
+  let contato = {};
+  contato['nome'] = nome;
+  contato['telefone'] = telefone;
+  contato['estado'] = estado;
+
+  let retorno = salvarDados(contato);
+  montarTabelaConteudo(retorno);
 }
 
 function montarTabelaConteudo(contatos){
