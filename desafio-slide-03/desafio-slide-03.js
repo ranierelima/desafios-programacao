@@ -19,6 +19,9 @@
 // sempre que um contato for cadastrado ou atualizado ou removido a tela de contatos salvos deve ser atualizada.
 
 // Boa sorte a todos e qualquer dúvida, é só entrar em contato
+
+let idAtual = undefined;
+
 function tratarEvento(event, index){
 
   let nomeContato = document.getElementById('nomeContato').value;
@@ -28,36 +31,59 @@ function tratarEvento(event, index){
   console.log("evento: ", event, ' dados: ', nomeContato, telefoneContato, estadoContato);
 
   if('salvar' == event){
-    salvarContato(nomeContato, telefoneContato, estadoContato);
+    salvarContato(nomeContato, telefoneContato, estadoContato, undefined);
   } else if('editar' == event){
-    // REALIZAR ACAO DE EDICAO
+    salvarContato(nomeContato, telefoneContato, estadoContato, idAtual);
   } else if('excluir' == event) {
-    // realizar acao de exclusao
+    excluirContato();
   } else if('visualizar' == event) {
-     let contatos = recuperarDados();
-     let contato = contatos[index];
-    
-     if(contato){
-      document.getElementById('nomeContato').value = contato.nome;
-      document.getElementById('telefoneContato').value = contato.telefone;
-      document.getElementById('estadoContato').value = contato.estado;
-     }
-
+     visualizarContato(index);
   } else {
     console.log(`Nenhuma ação válida foi selecionada`);
   }  
-
+  
+  if('visualizar' != event) {
+    carregarTela();
+  }
+  
 }
 
-function salvarContato(nome, telefone, estado){
+function salvarContato(nome, telefone, estado, id){
   // chave : valor
   let contato = {};
   contato['nome'] = nome;
   contato['telefone'] = telefone;
   contato['estado'] = estado;
+  contato['id'] = id;
 
-  let retorno = salvarDados(contato);
-  montarTabelaConteudo(retorno);
+  salvarDados(contato);
+}
+
+function visualizarContato(index){
+  idAtual = index;
+  let contatos = recuperarDados();
+  let contato = contatos.filter(function(c){ 
+    return c.id == index
+  })[0];
+  preencherCampos(contato);
+}
+
+function excluirContato(){
+  removerContato(idAtual);
+  idAtual = undefined;
+  preencherCampos(undefined);
+}
+
+function preencherCampos(contato){
+  if(contato){
+    document.getElementById('nomeContato').value = contato.nome;
+    document.getElementById('telefoneContato').value = contato.telefone;
+    document.getElementById('estadoContato').value = contato.estado;
+  } else {
+    document.getElementById('nomeContato').value = '';
+    document.getElementById('telefoneContato').value = '';
+    document.getElementById('estadoContato').value =  '';
+  }
 }
 
 function montarTabelaConteudo(contatos){
@@ -69,7 +95,7 @@ function montarTabelaConteudo(contatos){
         <td>${contato.telefone}</td>
         <td>${contato.estado}</td>
         <td>
-          <span class="material-icons material-icons-outlined text-info" onclick="tratarEvento('visualizar',${index})">
+          <span class="material-icons material-icons-outlined text-info" onclick="tratarEvento('visualizar','${contato.id}')">
            search
           </span>
         </td>
@@ -78,3 +104,8 @@ function montarTabelaConteudo(contatos){
     }).join('');
   }
 }
+
+function carregarTela(){
+  montarTabelaConteudo(recuperarDados());
+};
+carregarTela();
